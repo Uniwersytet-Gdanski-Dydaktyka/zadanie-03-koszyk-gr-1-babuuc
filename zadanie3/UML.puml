@@ -1,0 +1,123 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Product {
+  - String code
+  - String name
+  - double price
+  - double discountPrice
+  + Product(String code, String name, double price)
+  + Product(String code, String name, double price, double discountPrice)
+  + String getCode()
+  + String getName()
+  + double getPrice()
+  + double getDiscountPrice()
+  + Product withDiscountPrice(double newDiscountPrice)
+}
+
+interface Promotion {
+  + String getName()
+  + PromotionResult apply(List<Product> products, List<Product> gifts)
+}
+
+class PromotionResult {
+  - List<Product> products
+  - List<Product> gifts
+  + PromotionResult(List<Product> products, List<Product> gifts)
+  + static PromotionResult fromProducts(List<Product> products)
+  + List<Product> getProducts()
+  + List<Product> getGifts()
+  + double getTotalToPay()
+  + boolean hasGiftWithCode(String code)
+}
+
+class OrderValueDiscountPromotion {
+  - double minimumValue
+  - double discountPercent
+  + OrderValueDiscountPromotion(double minimumValue, double discountPercent)
+  + String getName()
+  + PromotionResult apply(List<Product> products, List<Product> gifts)
+}
+
+class BuyThreePayTwoPromotion {
+  + String getName()
+  + PromotionResult apply(List<Product> products, List<Product> gifts)
+}
+
+class MugGiftPromotion {
+  + String getName()
+  + PromotionResult apply(List<Product> products, List<Product> gifts)
+}
+
+class ProductCouponPromotion {
+  - String productCode
+  - double discountPercent
+  + ProductCouponPromotion(String productCode, double discountPercent)
+  + String getName()
+  + PromotionResult apply(List<Product> products, List<Product> gifts)
+}
+
+class PromotionApplier {
+  + PromotionResult applyPromotions(List<Product> products, List<Promotion> promotions)
+}
+
+class BestPromotionFinder {
+  + PromotionResult findBestResult(List<Product> products, List<Promotion> promotions)
+}
+
+class ProductSearchService {
+  + Optional<Product> findCheapest(List<Product> products)
+  + Optional<Product> findMostExpensive(List<Product> products)
+  + List<Product> findNCheapest(List<Product> products, int count)
+  + List<Product> findNMostExpensive(List<Product> products, int count)
+}
+
+class ProductSortService {
+  + List<Product> sortDefault(List<Product> products)
+  + List<Product> sort(List<Product> products, Comparator<Product> comparator)
+}
+
+class ProductComparators {
+  + static Comparator<Product> priceDescendingNameAscending()
+  + static Comparator<Product> priceAscendingNameAscending()
+  + static Comparator<Product> nameAscending()
+  + static Comparator<Product> discountPriceDescending()
+}
+
+class CartCalculator {
+  + double sumPrices(List<Product> products)
+  + double sumDiscountPrices(List<Product> products)
+}
+
+class Cart {
+  - List<Product> products
+  - List<Promotion> promotions
+  + void addProduct(Product product)
+  + boolean removeProductByCode(String code)
+  + void addPromotion(Promotion promotion)
+  + void clearPromotions()
+  + void setSortComparator(Comparator<Product> sortComparator)
+  + List<Product> getProducts()
+  + List<Product> getSortedProducts()
+  + PromotionResult calculate()
+  + PromotionResult calculateBest()
+}
+
+Promotion <|.. OrderValueDiscountPromotion
+Promotion <|.. BuyThreePayTwoPromotion
+Promotion <|.. MugGiftPromotion
+Promotion <|.. ProductCouponPromotion
+PromotionResult --> Product
+PromotionApplier --> Promotion
+PromotionApplier --> PromotionResult
+BestPromotionFinder --> PromotionApplier
+Cart --> Product
+Cart --> Promotion
+Cart --> ProductSortService
+Cart --> PromotionApplier
+Cart --> BestPromotionFinder
+ProductSearchService --> Product
+ProductSortService --> Product
+ProductComparators --> Product
+CartCalculator --> Product
+@enduml
